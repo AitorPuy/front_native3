@@ -1,12 +1,31 @@
-import { useContext, useState } from "react";
+import { useContext, useState, useEffect } from "react";
 import { Button, Text, TextInput, View, ScrollView } from "react-native";
 import { AuthContext } from "../context/AuthContext";
+import axios from "axios";
 
 export default function LoginScreen({ navigation }) {
   const { login } = useContext(AuthContext);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [companyName, setCompanyName] = useState("Login");
+
+  useEffect(() => {
+    // Obtener empresa principal sin autenticación
+    const loadPrimaryCompany = async () => {
+      try {
+        const baseURL = process.env.EXPO_PUBLIC_API_URL;
+        const res = await axios.get(`${baseURL}/companies/primary/`);
+        if (res.data && res.data.name) {
+          setCompanyName(res.data.name);
+        }
+      } catch (err) {
+        // Si falla, mantener el nombre por defecto
+        console.log("No se pudo cargar la empresa principal:", err);
+      }
+    };
+    loadPrimaryCompany();
+  }, []);
 
   // Validar formato de email
   const isValidEmail = (emailStr) => {
@@ -90,7 +109,7 @@ export default function LoginScreen({ navigation }) {
 
   return (
     <ScrollView style={{ padding: 20 }}>
-      <Text style={{ fontSize: 20, marginBottom: 20 }}>Login</Text>
+      <Text style={{ fontSize: 20, marginBottom: 20, fontWeight: "bold", textAlign: "center" }}>{companyName}</Text>
 
       {error ? (
         <View style={{ 
